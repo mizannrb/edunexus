@@ -12,7 +12,7 @@ import CourseDetailPage from './pages/CourseDetailPage'
 import DashboardPage from './pages/DashboardPage'
 import AdminPage from './pages/AdminPage'
 import CourseFormPage from './pages/CourseFormPage'
-
+import AboutPage from './pages/AboutPage'
 function Layout({ children }) {
   return (
     <div className="flex flex-col min-h-screen">
@@ -32,7 +32,7 @@ export default function App() {
         <Route path="/" element={<Layout><HomePage /></Layout>} />
         <Route path="/courses" element={<Layout><CoursesPage /></Layout>} />
         <Route path="/courses/:slug" element={<Layout><CourseDetailPage /></Layout>} />
-
+         <Route path="/about" element={<Layout><AboutPage /></Layout>} />
         {/* Auth pages (no footer) */}
         <Route path="/login" element={<><Navbar /><LoginPage /></>} />
         <Route path="/register" element={<><Navbar /><RegisterPage /></>} />
