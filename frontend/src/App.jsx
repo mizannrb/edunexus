@@ -13,6 +13,7 @@ import DashboardPage from './pages/DashboardPage'
 import AdminPage from './pages/AdminPage'
 import CourseFormPage from './pages/CourseFormPage'
 import AboutPage from './pages/AboutPage'
+
 function Layout({ children }) {
   return (
     <div className="flex flex-col min-h-screen">
@@ -28,21 +29,18 @@ export default function App() {
     <BrowserRouter>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <Routes>
-        {/* Public with layout */}
         <Route path="/" element={<Layout><HomePage /></Layout>} />
         <Route path="/courses" element={<Layout><CoursesPage /></Layout>} />
         <Route path="/courses/:slug" element={<Layout><CourseDetailPage /></Layout>} />
-         <Route path="/about" element={<Layout><AboutPage /></Layout>} />
-        {/* Auth pages (no footer) */}
+        <Route path="/about" element={<Layout><AboutPage /></Layout>} />
+
         <Route path="/login" element={<><Navbar /><LoginPage /></>} />
         <Route path="/register" element={<><Navbar /><RegisterPage /></>} />
 
-        {/* Protected user routes */}
         <Route path="/dashboard" element={
           <PrivateRoute><Layout><DashboardPage /></Layout></PrivateRoute>
         } />
 
-        {/* Admin routes */}
         <Route path="/admin" element={
           <AdminRoute><Layout><AdminPage /></Layout></AdminRoute>
         } />
@@ -53,7 +51,6 @@ export default function App() {
           <AdminRoute><CourseFormPage /></AdminRoute>
         } />
 
-        {/* 404 */}
         <Route path="*" element={
           <Layout>
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
