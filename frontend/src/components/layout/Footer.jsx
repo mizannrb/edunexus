@@ -50,8 +50,8 @@ export default function Footer() {
             <h4 className="font-heading font-semibold text-orange-400 mb-3">Contact</h4>
             <ul className="space-y-2 text-sm text-blue-200">
               <li className="flex items-center gap-2"><Mail className="w-4 h-4 text-orange-400" />support@edunexus.com</li>
-              <li className="flex items-center gap-2"><Phone className="w-4 h-4 text-orange-400" />+880 1700-000000</li>
-              <li className="flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-400" />Dhaka, Bangladesh</li>
+              <li className="flex items-center gap-2"><Phone className="w-4 h-4 text-orange-400" />+880 1749905295</li>
+              <li className="flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-400" />Mizan road, Feni, Bangladesh</li>
             </ul>
           </div>
         </div>
