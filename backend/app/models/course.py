@@ -32,15 +32,15 @@ class Course(Base):
     status = Column(Enum(CourseStatus), default=CourseStatus.draft)
     duration_hours = Column(Float, default=0.0)
     category = Column(String(100))
-    tags = Column(String(500))  # comma-separated
+    tags = Column(String(500))
     instructor_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Relationships
     instructor = relationship("User", back_populates="created_courses")
     modules = relationship("CourseModule", back_populates="course", cascade="all, delete-orphan", order_by="CourseModule.order")
     enrollments = relationship("Enrollment", back_populates="course", cascade="all, delete-orphan")
+    payments = relationship("Payment", back_populates="course")
 
 
 class CourseModule(Base):
@@ -71,4 +71,3 @@ class Lesson(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     module = relationship("CourseModule", back_populates="lessons")
-    payments = relationship("Payment", back_populates="course")
