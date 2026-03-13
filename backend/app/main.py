@@ -27,7 +27,7 @@ app.include_router(users.router, prefix="/api/v1", tags=["users"])
 app.include_router(courses.router, prefix="/api/v1", tags=["courses"])
 app.include_router(enrollments.router, prefix="/api/v1", tags=["enrollments"])
 app.include_router(uploads.router, prefix="/api/v1", tags=["uploads"])
-app.include_router(payments.router, prefix="/api/v1", tags=["payments"])
+app.include_router(payment.router, prefix="/api/v1", tags=["payments"])
 
 @app.on_event("startup")
 async def startup_event():
