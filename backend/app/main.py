@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.database import Base, engine
-from app.api.routes import auth, users, courses, enrollments, uploads, payment
+from app.api.routes import auth, users, courses, enrollments, uploads
+from app.api.routes import payments as payments_router
 from app.models import user, course, enrollment, payment
 from app.core.security import create_first_admin
 
@@ -27,7 +28,7 @@ app.include_router(users.router, prefix="/api/v1", tags=["users"])
 app.include_router(courses.router, prefix="/api/v1", tags=["courses"])
 app.include_router(enrollments.router, prefix="/api/v1", tags=["enrollments"])
 app.include_router(uploads.router, prefix="/api/v1", tags=["uploads"])
-app.include_router(payment.router, prefix="/api/v1", tags=["payments"])
+app.include_router(payments_router.router, prefix="/api/v1", tags=["payments"])
 
 @app.on_event("startup")
 async def startup_event():
