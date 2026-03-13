@@ -22,3 +22,4 @@ class User(Base):
     # Relationships
     enrollments = relationship("Enrollment", back_populates="user", cascade="all, delete-orphan")
     created_courses = relationship("Course", back_populates="instructor")
+    payments = relationship("Payment", back_populates="user")

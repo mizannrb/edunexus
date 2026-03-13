@@ -71,3 +71,4 @@ class Lesson(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     module = relationship("CourseModule", back_populates="lessons")
+    payments = relationship("Payment", back_populates="course")

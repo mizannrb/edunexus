@@ -13,6 +13,8 @@ import DashboardPage from './pages/DashboardPage'
 import AdminPage from './pages/AdminPage'
 import CourseFormPage from './pages/CourseFormPage'
 import AboutPage from './pages/AboutPage'
+import PaymentSuccessPage from './pages/PaymentSuccessPage'
+import PaymentFailPage from './pages/PaymentFailPage'
 
 function Layout({ children }) {
   return (
@@ -50,6 +52,9 @@ export default function App() {
         <Route path="/admin/courses/:id/edit" element={
           <AdminRoute><CourseFormPage /></AdminRoute>
         } />
+<Route path="/payment/success" element={<Layout><PaymentSuccessPage /></Layout>} />
+<Route path="/payment/fail" element={<Layout><PaymentFailPage /></Layout>} />
+<Route path="/payment/cancel" element={<Layout><PaymentFailPage /></Layout>} />
 
         <Route path="*" element={
           <Layout>

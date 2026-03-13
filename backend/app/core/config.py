@@ -1,23 +1,29 @@
 from pydantic_settings import BaseSettings
 from typing import List
 
-
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/edunexus"
-    SECRET_KEY: str = "edunexus-secret-key"
+    APP_NAME: str = "EduNexus"
+    APP_VERSION: str = "1.0.0"
+    DEBUG: bool = False
+
+    DATABASE_URL: str = ""
+    SECRET_KEY: str = ""
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
+    FIRST_ADMIN_EMAIL: str = ""
+    FIRST_ADMIN_PASSWORD: str = ""
+    FIRST_ADMIN_NAME: str = ""
+
+    ALLOWED_ORIGINS: str = "http://localhost:3000"
+
     CLOUDINARY_CLOUD_NAME: str = ""
     CLOUDINARY_API_KEY: str = ""
     CLOUDINARY_API_SECRET: str = ""
-    APP_NAME: str = "EduNexus"
-    APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
-    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
 
-    FIRST_ADMIN_EMAIL: str = "admin@edunexus.com"
-    FIRST_ADMIN_PASSWORD: str = "Admin@123456"
-    FIRST_ADMIN_NAME: str = "Super Admin"
+    SSLCOMMERZ_STORE_ID: str = ""
+    SSLCOMMERZ_STORE_PASSWORD: str = ""
+    BACKEND_URL: str = "https://edunexus-api-4bd7.onrender.com"
 
     @property
     def origins_list(self) -> List[str]:
@@ -25,7 +31,5 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
-        extra = "ignore"
-
 
 settings = Settings()
