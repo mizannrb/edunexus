@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.database import Base, engine
-from app.api.routes import auth, users, courses, enrollments, uploads, payments
+from app.api.routes import auth, users, courses, enrollments, uploads, payment
 from app.models import user, course, enrollment, payment
 from app.core.security import create_first_admin
 
