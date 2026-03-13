@@ -1,4 +1,5 @@
 import { GraduationCap, Users, BookOpen, Award, TrendingUp } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const team = [
   { name: 'Md. Mizan', role: 'Founder & CEO', emoji: '👨‍💼' },
@@ -15,15 +16,24 @@ const stats = [
 ]
 
 const values = [
-  { icon: '🎯', title: 'আমাদের লক্ষ্য', desc: 'বাংলাদেশের প্রতিটি মানুষের কাছে মানসম্মত শিক্ষা পৌঁছে দেওয়া। প্রযুক্তির মাধ্যমে শিক্ষার বাধা দূর করা।' },
-  { icon: '👁️', title: 'আমাদের দৃষ্টিভঙ্গি', desc: 'একটি এমন পৃথিবী গড়া যেখানে শিক্ষা সবার জন্য সমান সুযোগ নিয়ে আসে। জ্ঞান ও দক্ষতা দিয়ে জীবন বদলানো।' },
-  { icon: '❤️', title: 'আমাদের মূল্যবোধ', desc: 'শিক্ষার্থীদের সাফল্যই আমাদের সাফল্য। মানসম্মত কন্টেন্ট, অভিজ্ঞ শিক্ষক এবং সহজলভ্য শিক্ষা আমাদের প্রতিশ্রুতি।' },
+  { icon: '🎯', title: 'আমাদের লক্ষ্য', desc: 'বাংলাদেশের প্রতিটি মানুষের কাছে মানসম্মত শিক্ষা পৌঁছে দেওয়া।' },
+  { icon: '👁️', title: 'আমাদের দৃষ্টিভঙ্গি', desc: 'একটি এমন পৃথিবী গড়া যেখানে শিক্ষা সবার জন্য সমান সুযোগ নিয়ে আসে।' },
+  { icon: '❤️', title: 'আমাদের মূল্যবোধ', desc: 'শিক্ষার্থীদের সাফল্যই আমাদের সাফল্য। মানসম্মত কন্টেন্ট আমাদের প্রতিশ্রুতি।' },
+]
+
+const features = [
+  { emoji: '🎓', text: 'Expert Instructors' },
+  { emoji: '📱', text: 'Mobile Friendly' },
+  { emoji: '🏆', text: 'Certificates' },
+  { emoji: '🌍', text: 'Learn Anywhere' },
+  { emoji: '💬', text: 'Community Support' },
+  { emoji: '🔄', text: 'Lifetime Access' },
 ]
 
 export default function AboutPage() {
   return (
     <div className="fade-in">
-      {/* Hero */}
+
       <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center justify-center bg-white/10 p-4 rounded-2xl mb-6">
@@ -33,14 +43,12 @@ export default function AboutPage() {
             আমাদের সম্পর্কে
           </h1>
           <p className="text-blue-100 text-xl max-w-3xl mx-auto leading-relaxed">
-            EduNexus হলো বাংলাদেশের অন্যতম Leading EdTech Platform। আমরা বিশ্বাস করি
-            মানসম্মত শিক্ষা সবার অধিকার। আমাদের লক্ষ্য —{' '}
-            <span className="text-orange-400 font-bold">Building the Future of Learning Systems।</span>
+            EduNexus হলো বাংলাদেশের অন্যতম Leading EdTech Platform।
+            আমাদের লক্ষ্য Building the Future of Learning Systems।
           </p>
         </div>
       </section>
 
-      {/* Stats */}
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -55,7 +63,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Story */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -64,34 +71,14 @@ export default function AboutPage() {
                 আমাদের <span className="text-blue-700">গল্প</span>
               </h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
-                <p>
-                  ২০২৪ সালে EduNexus এর যাত্রা শুরু হয় একটি সহজ স্বপ্ন নিয়ে —
-                  বাংলাদেশের প্রতিটি কোণে মানসম্মত শিক্ষা পৌঁছে দেওয়া।
-                </p>
-                <p>
-                  আমরা লক্ষ্য করেছিলাম অনেক মেধাবী তরুণ শুধুমাত্র সঠিক গাইডেন্স ও
-                  সুযোগের অভাবে পিছিয়ে পড়ছে। EduNexus সেই সুযোগ তৈরি করতে এসেছে।
-                </p>
-                <p>
-                  আজ আমাদের প্ল্যাটফর্মে ২০০+ কোর্স, ১০,০০০+ শিক্ষার্থী এবং
-                  অভিজ্ঞ ইন্সট্রাক্টরদের নিয়ে আমরা এগিয়ে চলেছি।
-                </p>
-                <p>
-                  আমাদের বিশেষজ্ঞ দল প্রতিনিয়ত নতুন কোর্স তৈরি করছে যা
-                  Industry এর চাহিদার সাথে সামঞ্জস্যপূর্ণ।
-                </p>
+                <p>২০২৪ সালে EduNexus এর যাত্রা শুরু হয় একটি সহজ স্বপ্ন নিয়ে — বাংলাদেশের প্রতিটি কোণে মানসম্মত শিক্ষা পৌঁছে দেওয়া।</p>
+                <p>আমরা লক্ষ্য করেছিলাম অনেক মেধাবী তরুণ শুধুমাত্র সঠিক গাইডেন্স ও সুযোগের অভাবে পিছিয়ে পড়ছে। EduNexus সেই সুযোগ তৈরি করতে এসেছে।</p>
+                <p>আজ আমাদের প্ল্যাটফর্মে ২০০+ কোর্স, ১০,০০০+ শিক্ষার্থী এবং অভিজ্ঞ ইন্সট্রাক্টরদের নিয়ে আমরা এগিয়ে চলেছি।</p>
               </div>
             </div>
             <div className="bg-gradient-to-br from-blue-100 to-orange-100 rounded-2xl p-8">
               <div className="grid grid-cols-2 gap-4">
-                {[
-                  { emoji: '🎓', text: 'Expert Instructors' },
-                  { emoji: '📱', text: 'Mobile Friendly' },
-                  { emoji: '🏆', text: 'Certificates' },
-                  { emoji: '🌍', text: 'Learn Anywhere' },
-                  { emoji: '💬', text: 'Community Support' },
-                  { emoji: '🔄', text: 'Lifetime Access' },
-                ].map((item) => (
+                {features.map((item) => (
                   <div key={item.text} className="bg-white rounded-xl p-4 text-center shadow-sm">
                     <div className="text-3xl mb-2">{item.emoji}</div>
                     <div className="text-sm font-semibold text-gray-700">{item.text}</div>
@@ -103,14 +90,10 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Mission Vision Values */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-heading font-bold text-3xl text-gray-800 mb-3">
-              আমাদের লক্ষ্য ও মূল্যবোধ
-            </h2>
-            <p className="text-gray-500">যা আমাদের প্রতিদিন অনুপ্রাণিত করে</p>
+            <h2 className="font-heading font-bold text-3xl text-gray-800 mb-3">আমাদের লক্ষ্য ও মূল্যবোধ</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {values.map((v) => (
@@ -124,12 +107,10 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl text-gray-800 mb-3">আমাদের টিম</h2>
-            <p className="text-gray-500">যারা EduNexus কে এগিয়ে নিয়ে যাচ্ছে</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {team.map((member) => (
@@ -143,21 +124,19 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-16 bg-blue-800 text-white text-center">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="font-heading font-bold text-3xl mb-4">আজই শুরু করুন!</h2>
-          <p className="text-blue-200 text-lg mb-8">
-            ১০,০০০+ শিক্ষার্থীর সাথে যোগ দিন এবং আপনার স্বপ্নের ক্যারিয়ার গড়ুন
-          </p>
-
-            href="/register"
+          <p className="text-blue-200 text-lg mb-8">১০,০০০+ শিক্ষার্থীর সাথে যোগ দিন</p>
+          <Link
+            to="/register"
             className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-lg transition-colors inline-block"
           >
-            বিনামূল্যে শুরু করুন 🚀
-          </a>
+            বিনামূল্যে শুরু করুন
+          </Link>
         </div>
       </section>
+
     </div>
   )
 }
