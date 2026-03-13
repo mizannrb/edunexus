@@ -7,7 +7,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "edunexus-secret-key"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
     APP_NAME: str = "EduNexus"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True

@@ -4,6 +4,7 @@ from fastapi.openapi.utils import get_openapi
 from app.core.config import settings
 from app.api import api_router
 from app.db.database import create_tables
+from app.api.routes import uploads
 
 
 def create_app() -> FastAPI:
@@ -49,7 +50,7 @@ Use the **Authorize** button (🔒) above to authenticate. Login at `/api/v1/aut
 
     # Routes
     app.include_router(api_router)
-
+    app.include_router(uploads.router, prefix="/api/v1", tags=["uploads"])
     @app.get("/", tags=["Root"])
     def root():
         return {
