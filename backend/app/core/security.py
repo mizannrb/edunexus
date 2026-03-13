@@ -59,3 +59,33 @@ async def get_current_admin(current_user=Depends(get_current_user)):
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin privileges required")
     return current_user
+
+
+def create_first_admin():
+    from app.db.database import SessionLocal
+    from app.models.user import User
+
+    db = SessionLocal()
+    try:
+        existing = db.query(User).filter(
+            User.email == settings.FIRST_ADMIN_EMAIL
+        ).first()
+
+        if not existing and settings.FIRST_ADMIN_EMAIL:
+            admin = User(
+                email=settings.FIRST_ADMIN_EMAIL,
+                full_name=settings.FIRST_ADMIN_NAME,
+                hashed_password=get_password_hash(settings.FIRST_ADMIN_PASSWORD),
+                is_active=True,
+                is_admin=True,
+            )
+            db.add(admin)
+            db.commit()
+            print(f"✅ Admin created: {settings.FIRST_ADMIN_EMAIL}")
+        else:
+            print("✅ Admin already exists")
+    except Exception as e:
+        print(f"❌ Admin creation failed: {e}")
+        db.rollback()
+    finally:
+        db.close()
