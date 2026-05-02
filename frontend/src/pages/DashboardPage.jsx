@@ -226,18 +226,28 @@ export default function DashboardPage() {
                   </div>
                   {passwords.new_password && (
                     <div className="mt-2">
-                      <div className="flex gap-1">
-                        {[1,2,3,4].map(i => (
-                          <div key={i} className={`h-1 flex-1 rounded-full ${
-                            passwords.new_password.length >= i * 3
-                              ? i<=1 ? 'bg-red-400' : i<=2 ? 'bg-yellow-400' : i<=3 ? 'bg-blue-400' : 'bg-green-500'
-                              : 'bg-gray-200'
-                          }`} />
-                        ))}
-                      </div>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {passwords.new_password.length < 4 ? 'Too weak' : passwords.new_password.length < 7 ? 'Weak' : passwords.new_password.length < 10 ? 'Good' : 'Strong'} password
-                      </p>
+                      {(() => {
+                        const p = passwords.new_password
+                        let score = 0
+                        if (p.length >= 8) score++
+                        if (p.length >= 12) score++
+                        if (/[a-z]/.test(p) && /[A-Z]/.test(p)) score++
+                        if (/\d/.test(p)) score++
+                        if (/[^a-zA-Z0-9]/.test(p)) score++
+                        const level = score <= 1 ? 0 : score <= 2 ? 1 : score <= 3 ? 2 : 3
+                        const colors = ['bg-red-400', 'bg-yellow-400', 'bg-blue-400', 'bg-green-500']
+                        const labels = ['Too weak', 'Weak', 'Good', 'Strong']
+                        return (
+                          <>
+                            <div className="flex gap-1">
+                              {[0,1,2,3].map(i => (
+                                <div key={i} className={`h-1 flex-1 rounded-full ${i <= level ? colors[level] : 'bg-gray-200'}`} />
+                              ))}
+                            </div>
+                            <p className="text-xs text-gray-400 mt-1">{labels[level]} password</p>
+                          </>
+                        )
+                      })()}
                     </div>
                   )}
                 </div>

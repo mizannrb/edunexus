@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, DateTime, Float, Boolean, String
+from sqlalchemy import Column, Integer, ForeignKey, DateTime, Float, Boolean, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.database import Base
@@ -6,6 +6,9 @@ from app.db.database import Base
 
 class Enrollment(Base):
     __tablename__ = "enrollments"
+    __table_args__ = (
+        UniqueConstraint("user_id", "course_id", name="uq_enrollment_user_course"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))

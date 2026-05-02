@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func as sa_func
 from typing import List, Optional
 import re
 from app.db.database import get_db
 from app.core.security import get_current_user, get_current_admin
 from app.models.user import User
 from app.models.course import Course, CourseModule, Lesson, CourseStatus
+from app.models.enrollment import Enrollment
 from app.schemas.course import (
     CourseCreate, CourseUpdate, CourseResponse, CourseListResponse,
     PaginatedCourses, ModuleCreate, ModuleUpdate, ModuleResponse,
@@ -27,7 +29,7 @@ def get_unique_slug(db: Session, title: str, exclude_id: Optional[int] = None) -
     counter = 1
     while True:
         query = db.query(Course).filter(Course.slug == slug)
-        if exclude_id:
+        if exclude_id is not None:
             query = query.filter(Course.id != exclude_id)
         if not query.first():
             return slug
@@ -52,7 +54,13 @@ def list_courses(
     is_free: Optional[bool] = Query(None),
     db: Session = Depends(get_db)
 ):
-    query = db.query(Course).filter(Course.status == CourseStatus.published)
+    enrollment_count_sq = (
+        db.query(sa_func.count(Enrollment.id))
+        .filter(Enrollment.course_id == Course.id)
+        .correlate(Course)
+        .scalar_subquery()
+    )
+    query = db.query(Course, enrollment_count_sq).filter(Course.status == CourseStatus.published)
     if search:
         query = query.filter(Course.title.ilike(f"%{search}%"))
     if category:
@@ -63,10 +71,10 @@ def list_courses(
         query = query.filter(Course.is_free == is_free)
 
     total = query.count()
-    courses = query.offset((page - 1) * size).limit(size).all()
+    rows = query.offset((page - 1) * size).limit(size).all()
 
     items = []
-    for c in courses:
+    for c, enroll_count in rows:
         items.append(CourseListResponse(
             id=c.id, title=c.title, slug=c.slug,
             short_description=c.short_description,
@@ -74,7 +82,7 @@ def list_courses(
             is_free=c.is_free, level=c.level, status=c.status,
             category=c.category,
             instructor_name=c.instructor.full_name if c.instructor else None,
-            enrollment_count=len(c.enrollments),
+            enrollment_count=enroll_count or 0,
             duration_hours=c.duration_hours, created_at=c.created_at,
         ))
 
@@ -98,14 +106,20 @@ def list_all_courses_admin(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_admin)
 ):
-    query = db.query(Course)
+    enrollment_count_sq = (
+        db.query(sa_func.count(Enrollment.id))
+        .filter(Enrollment.course_id == Course.id)
+        .correlate(Course)
+        .scalar_subquery()
+    )
+    query = db.query(Course, enrollment_count_sq)
     if search:
         query = query.filter(Course.title.ilike(f"%{search}%"))
     if status:
         query = query.filter(Course.status == status)
 
     total = query.count()
-    courses = query.offset((page - 1) * size).limit(size).all()
+    rows = query.offset((page - 1) * size).limit(size).all()
 
     items = [CourseListResponse(
         id=c.id, title=c.title, slug=c.slug,
@@ -114,9 +128,9 @@ def list_all_courses_admin(
         is_free=c.is_free, level=c.level, status=c.status,
         category=c.category,
         instructor_name=c.instructor.full_name if c.instructor else None,
-        enrollment_count=len(c.enrollments),
+        enrollment_count=enroll_count or 0,
         duration_hours=c.duration_hours, created_at=c.created_at,
-    ) for c in courses]
+    ) for c, enroll_count in rows]
 
     return PaginatedCourses(items=items, total=total, page=page, size=size, pages=(total + size - 1) // size)
 
@@ -128,7 +142,10 @@ def list_all_courses_admin(
     description="Get full course details including modules and lessons."
 )
 def get_course(slug: str, db: Session = Depends(get_db)):
-    course = db.query(Course).filter(Course.slug == slug).first()
+    course = db.query(Course).filter(
+        Course.slug == slug,
+        Course.status == CourseStatus.published
+    ).first()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     return CourseResponse(
@@ -336,6 +353,11 @@ def update_lesson(
     course_id: int, module_id: int, lesson_id: int, update_data: LessonUpdate,
     db: Session = Depends(get_db), _: User = Depends(get_current_admin)
 ):
+    module = db.query(CourseModule).filter(
+        CourseModule.id == module_id, CourseModule.course_id == course_id
+    ).first()
+    if not module:
+        raise HTTPException(status_code=404, detail="Module not found")
     lesson = db.query(Lesson).filter(
         Lesson.id == lesson_id, Lesson.module_id == module_id
     ).first()
@@ -357,6 +379,11 @@ def delete_lesson(
     course_id: int, module_id: int, lesson_id: int,
     db: Session = Depends(get_db), _: User = Depends(get_current_admin)
 ):
+    module = db.query(CourseModule).filter(
+        CourseModule.id == module_id, CourseModule.course_id == course_id
+    ).first()
+    if not module:
+        raise HTTPException(status_code=404, detail="Module not found")
     lesson = db.query(Lesson).filter(
         Lesson.id == lesson_id, Lesson.module_id == module_id
     ).first()

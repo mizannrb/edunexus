@@ -46,7 +46,7 @@ export default function CourseDetailPage() {
     if (!isLoggedIn()) { navigate('/login'); return }
     setPaying(true)
     try {
-      const res = await api.post(`/api/v1/payments/initiate/${course.id}`)
+      const res = await api.post(`/payments/initiate/${course.id}`)
       window.location.href = res.data.payment_url
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Payment initiation failed')

@@ -10,11 +10,14 @@ from app.models.user import User
 from app.models.course import Course
 from app.models.payment import Payment, PaymentStatus
 from app.models.enrollment import Enrollment
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 SSLCOMMERZ_INIT_URL = "https://sandbox.sslcommerz.com/gwprocess/v4/api.php"
-FRONTEND_URL = "https://edunexus-chi.vercel.app"
+SSLCOMMERZ_VALIDATION_URL = "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php"
 
 @router.post("/payments/initiate/{course_id}")
 async def initiate_payment(
@@ -87,56 +90,97 @@ async def initiate_payment(
     }
 
 
+async def _verify_with_sslcommerz(val_id: str) -> dict | None:
+    """Verify payment via SSLCommerz server-side validation API."""
+    try:
+        params = {
+            "val_id": val_id,
+            "store_id": settings.SSLCOMMERZ_STORE_ID,
+            "store_passwd": settings.SSLCOMMERZ_STORE_PASSWORD,
+            "format": "json",
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(SSLCOMMERZ_VALIDATION_URL, params=params, timeout=15)
+            return resp.json()
+    except Exception as e:
+        logger.error(f"SSLCommerz validation request failed: {e}")
+        return None
+
+
 @router.post("/payments/success")
 async def payment_success(request: Request, db: Session = Depends(get_db)):
     form_data = await request.form()
     tran_id = form_data.get("tran_id")
-    status = form_data.get("status")
+    val_id = form_data.get("val_id")
+
     payment = db.query(Payment).filter(Payment.transaction_id == tran_id).first()
     if not payment:
-        return RedirectResponse(f"{FRONTEND_URL}/payment/fail")
-    if status in ["VALID", "VALIDATED"]:
-        payment.status = PaymentStatus.SUCCESS
-        payment.payment_method = form_data.get("card_type", "")
-        db.commit()
-        existing = db.query(Enrollment).filter(
-            Enrollment.user_id == payment.user_id,
-            Enrollment.course_id == payment.course_id
-        ).first()
-        if not existing:
-            enrollment = Enrollment(
-                user_id=payment.user_id,
-                course_id=payment.course_id
-            )
-            db.add(enrollment)
-            db.commit()
-        return RedirectResponse(f"{FRONTEND_URL}/payment/success?tran_id={tran_id}")
-    else:
+        return RedirectResponse(f"{settings.FRONTEND_URL}/payment/fail")
+
+    if not val_id:
         payment.status = PaymentStatus.FAILED
         db.commit()
-        return RedirectResponse(f"{FRONTEND_URL}/payment/fail")
+        return RedirectResponse(f"{settings.FRONTEND_URL}/payment/fail")
+
+    validation = await _verify_with_sslcommerz(val_id)
+    if not validation or validation.get("status") not in ("VALID", "VALIDATED"):
+        payment.status = PaymentStatus.FAILED
+        db.commit()
+        return RedirectResponse(f"{settings.FRONTEND_URL}/payment/fail")
+
+    if validation.get("tran_id") != tran_id:
+        payment.status = PaymentStatus.FAILED
+        db.commit()
+        return RedirectResponse(f"{settings.FRONTEND_URL}/payment/fail")
+
+    validated_amount = float(validation.get("currency_amount", 0))
+    if abs(validated_amount - payment.amount) > 1:
+        logger.warning(f"Payment amount mismatch: expected {payment.amount}, got {validated_amount}")
+        payment.status = PaymentStatus.FAILED
+        db.commit()
+        return RedirectResponse(f"{settings.FRONTEND_URL}/payment/fail")
+
+    payment.status = PaymentStatus.SUCCESS
+    payment.payment_method = validation.get("card_type", "")
+    db.commit()
+
+    existing = db.query(Enrollment).filter(
+        Enrollment.user_id == payment.user_id,
+        Enrollment.course_id == payment.course_id
+    ).first()
+    if not existing:
+        enrollment = Enrollment(
+            user_id=payment.user_id,
+            course_id=payment.course_id
+        )
+        db.add(enrollment)
+        db.commit()
+
+    return RedirectResponse(f"{settings.FRONTEND_URL}/payment/success?tran_id={tran_id}")
 
 
 @router.post("/payments/fail")
 async def payment_fail(request: Request, db: Session = Depends(get_db)):
     form_data = await request.form()
     tran_id = form_data.get("tran_id")
-    payment = db.query(Payment).filter(Payment.transaction_id == tran_id).first()
-    if payment:
-        payment.status = PaymentStatus.FAILED
-        db.commit()
-    return RedirectResponse(f"{FRONTEND_URL}/payment/fail")
+    if tran_id:
+        payment = db.query(Payment).filter(Payment.transaction_id == tran_id).first()
+        if payment and payment.status == PaymentStatus.PENDING:
+            payment.status = PaymentStatus.FAILED
+            db.commit()
+    return RedirectResponse(f"{settings.FRONTEND_URL}/payment/fail")
 
 
 @router.post("/payments/cancel")
 async def payment_cancel(request: Request, db: Session = Depends(get_db)):
     form_data = await request.form()
     tran_id = form_data.get("tran_id")
-    payment = db.query(Payment).filter(Payment.transaction_id == tran_id).first()
-    if payment:
-        payment.status = PaymentStatus.CANCELLED
-        db.commit()
-    return RedirectResponse(f"{FRONTEND_URL}/payment/cancel")
+    if tran_id:
+        payment = db.query(Payment).filter(Payment.transaction_id == tran_id).first()
+        if payment and payment.status == PaymentStatus.PENDING:
+            payment.status = PaymentStatus.CANCELLED
+            db.commit()
+    return RedirectResponse(f"{settings.FRONTEND_URL}/payment/cancel")
 
 
 @router.get("/payments/my-payments")

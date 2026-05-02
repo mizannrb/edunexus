@@ -1,9 +1,12 @@
 import cloudinary
 import cloudinary.uploader
+import logging
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from app.core.config import settings
 from app.core.security import get_current_user
 from app.models.user import User
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -34,6 +37,29 @@ MAX_SIZES = {
     "document": 50 * 1024 * 1024,
 }
 
+MAGIC_BYTES = {
+    b"\xff\xd8\xff": "image",
+    b"\x89PNG\r\n\x1a\n": "image",
+    b"GIF87a": "image",
+    b"GIF89a": "image",
+    b"RIFF": "image",
+    b"\x00\x00\x00\x1cftyp": "video",
+    b"\x00\x00\x00\x18ftyp": "video",
+    b"\x00\x00\x00\x20ftyp": "video",
+    b"\x1aE\xdf\xa3": "video",
+    b"%PDF": "pdf",
+    b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1": "document",
+    b"PK\x03\x04": "document",
+}
+
+
+def _detect_type_from_bytes(header: bytes) -> str | None:
+    for signature, file_type in MAGIC_BYTES.items():
+        if header[:len(signature)] == signature:
+            return file_type
+    return None
+
+
 def get_file_type(content_type: str):
     for file_type, mime_types in ALLOWED_TYPES.items():
         if content_type in mime_types:
@@ -53,6 +79,13 @@ async def upload_file(
         raise HTTPException(status_code=400, detail="File type not allowed")
 
     contents = await file.read()
+
+    detected_type = _detect_type_from_bytes(contents[:16])
+    if detected_type is None or detected_type != file_type:
+        raise HTTPException(
+            status_code=400,
+            detail="File content does not match declared type"
+        )
 
     max_size = MAX_SIZES[file_type]
     if len(contents) > max_size:
@@ -78,7 +111,8 @@ async def upload_file(
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+        logger.error(f"Upload failed: {e}")
+        raise HTTPException(status_code=500, detail="Upload failed")
 
 
 @router.delete("/upload/{public_id:path}")
@@ -93,4 +127,5 @@ async def delete_file(
         cloudinary.uploader.destroy(public_id)
         return {"message": "File deleted successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Delete failed: {str(e)}")
+        logger.error(f"Delete failed: {e}")
+        raise HTTPException(status_code=500, detail="Delete failed")

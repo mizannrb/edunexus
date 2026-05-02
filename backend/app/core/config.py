@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import model_validator
 from typing import List
 
 class Settings(BaseSettings):
@@ -24,6 +25,16 @@ class Settings(BaseSettings):
     SSLCOMMERZ_STORE_ID: str = ""
     SSLCOMMERZ_STORE_PASSWORD: str = ""
     BACKEND_URL: str = "https://edunexus-api-4bd7.onrender.com"
+    FRONTEND_URL: str = "https://edunexus-chi.vercel.app"
+
+    @model_validator(mode="after")
+    def validate_secret_key(self):
+        if not self.SECRET_KEY or len(self.SECRET_KEY) < 32:
+            raise ValueError(
+                "SECRET_KEY must be set and at least 32 characters. "
+                "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+            )
+        return self
 
     @property
     def origins_list(self) -> List[str]:

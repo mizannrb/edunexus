@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime
+from datetime import datetime, timezone
 from app.db.database import get_db
 from app.core.security import get_current_user, get_current_admin
 from app.models.user import User
@@ -105,13 +105,13 @@ def update_progress(
     if progress_rec:
         progress_rec.is_completed = data.is_completed
         if data.is_completed:
-            progress_rec.completed_at = datetime.utcnow()
+            progress_rec.completed_at = datetime.now(timezone.utc)
     else:
         progress_rec = LessonProgress(
             enrollment_id=enrollment_id,
             lesson_id=data.lesson_id,
             is_completed=data.is_completed,
-            completed_at=datetime.utcnow() if data.is_completed else None
+            completed_at=datetime.now(timezone.utc) if data.is_completed else None
         )
         db.add(progress_rec)
 
@@ -128,7 +128,7 @@ def update_progress(
         enrollment.progress = round((completed_count / total_lessons) * 100, 2)
         if enrollment.progress >= 100:
             enrollment.is_completed = True
-            enrollment.completed_at = datetime.utcnow()
+            enrollment.completed_at = datetime.now(timezone.utc)
 
     db.commit()
     return {"message": "Progress updated", "progress": enrollment.progress}

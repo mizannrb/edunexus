@@ -86,10 +86,6 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          {/* Demo hint */}
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700 text-center">
-            <strong>Demo Admin:</strong> admin@edunexus.com / Admin@123456
-          </div>
         </div>
       </div>
     </div>
